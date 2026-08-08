@@ -1,3 +1,10 @@
+# Immersive Portals: Stabilized (fork)
+
+Stability-focused fork of [Immersive Portals for NeoForge](https://github.com/iPortalTeam/ImmersivePortalsModForNeo)
+by qouteall & Nick1st (Apache-2.0). Original Fabric mod: https://github.com/iPortalTeam/ImmersivePortalsMod
+Focus: modpack stability (NeoForge 1.21.1), quarantine switches for exotic features, performance.
+The upstream repos are archived/dormant; this fork continues that work with attribution.
+
 # Immersive Portals Mod
 
 It's a Minecraft mod that provides see-through portals and seamless teleportation. It also can create "Non-Euclidean" (Uneuclidean) space effect.
