@@ -151,7 +151,8 @@ dependencies {
 //    implementation "curse.maven:camol-1214396:6337020"
 
     // Oritech
-    implementation "maven.modrinth:oritech:0.16.2"
+    // disabled: requires athena which is not in the dev runtime; re-enable together with athena if oritech compat testing is needed
+    // implementation "maven.modrinth:oritech:0.16.2"
     implementation "maven.modrinth:architectury-api:13.0.8+neoforge"
     implementation "maven.modrinth:geckolib:DTo3uxPN"
     // removed: no longer published on Modrinth
