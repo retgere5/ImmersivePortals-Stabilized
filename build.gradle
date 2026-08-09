@@ -146,10 +146,6 @@ dependencies {
     implementation "maven.modrinth:cloth-config:15.0.140+neoforge"
     implementation "maven.modrinth:pehkui:3.8.3+1.21-neoforge"
 
-    // The Aether
-    implementation "maven.modrinth:owo-lib:0.12.15-beta.12+1.21"
-    implementation "maven.modrinth:aether:1.21.1-1.5.1-beta.4-neoforge"
-
 //    // Confluence: Otherworld
 //    implementation "maven.modrinth:confluence:1.1.3"
 //    implementation "maven.modrinth:curios:9.5.1+1.21.1"
@@ -160,16 +156,27 @@ dependencies {
     // Oritech
     // disabled: requires athena which is not in the dev runtime; re-enable together with athena if oritech compat testing is needed
     // implementation "maven.modrinth:oritech:0.16.2"
-    implementation "maven.modrinth:architectury-api:13.0.8+neoforge"
-    implementation "maven.modrinth:geckolib:DTo3uxPN"
     // removed: no longer published on Modrinth
     // implementation "maven.modrinth:stitch:4.0.1"
 
-    // Create
-    implementation "maven.modrinth:create:1.21.1-6.0.6"
+    // Heavy dev-runtime mods: not required to compile the mod's own source, only used to
+    // smoke-test compat in a full dev environment. Gated behind heavy_dev_mods so the default
+    // dev loop (sodium + iris + cloth-config + pehkui) stays lean. Run with
+    // -Pheavy_dev_mods=true to pull these in.
+    if (project.findProperty('heavy_dev_mods') == 'true') {
+        // The Aether
+        implementation "maven.modrinth:owo-lib:0.12.15-beta.12+1.21"
+        implementation "maven.modrinth:aether:1.21.1-1.5.1-beta.4-neoforge"
 
-    // Mekanism
-    implementation "maven.modrinth:mekanism:10.7.14.79"
+        implementation "maven.modrinth:architectury-api:13.0.8+neoforge"
+        implementation "maven.modrinth:geckolib:DTo3uxPN"
+
+        // Create
+        implementation "maven.modrinth:create:1.21.1-6.0.6"
+
+        // Mekanism
+        implementation "maven.modrinth:mekanism:10.7.14.79"
+    }
 }
 
 tasks.named('build').configure { dependsOn('jarJar') }
