@@ -107,16 +107,29 @@ runs {
         modSource project.sourceSets.main
     }
 
+    // NOTE (two stacked bugs, both fixed here):
+    // 1) project.mod_id ("immersive_portals") matches none of the three modIds declared in
+    //    neoforge.mods.toml (immersive_portals_core, q_misc_util, imm_ptl) -- audit finding.
+    //    Hardcoded below to immersive_portals_core, the namespace used by
+    //    @GameTestHolder("immersive_portals_core").
+    // 2) The system property key itself was stale: NeoForge 21.1.152's GameTestHooks reads
+    //    "neoforge.enabledGameTestNamespaces" (see net.neoforged.neoforge.gametest.GameTestHooks
+    //    .getEnabledNamespaces()), not "forge.enabledGameTestNamespaces". The old "forge."-
+    //    prefixed key (a leftover from the pre-NeoForge Forge MDK template) was never read, so
+    //    this property was silently a no-op -- gametest namespace filtering was NOT happening at
+    //    all (an unset property reads back as an empty set, which GameTestRegistry.register()
+    //    treats as "no filter", i.e. every namespace's tests run). Corrected to the real key so
+    //    only this mod's gametests are actually selected.
     client {
-        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        systemProperty 'neoforge.enabledGameTestNamespaces', 'immersive_portals_core'
     }
 
     server {
-        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        systemProperty 'neoforge.enabledGameTestNamespaces', 'immersive_portals_core'
     }
 
     gameTestServer {
-        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        systemProperty 'neoforge.enabledGameTestNamespaces', 'immersive_portals_core'
     }
 
     data {
