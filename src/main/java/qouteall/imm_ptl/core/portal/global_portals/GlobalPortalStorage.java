@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.HolderLookup;
 import de.nick1st.imm_ptl.events.ClientCleanupEvent;
+import de.nick1st.imm_ptl.events.ServerCleanupEvent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
@@ -72,20 +74,39 @@ public class GlobalPortalStorage extends SavedData {
             });
         });
 
-        NeoForge.EVENT_BUS.addListener(ServerTickEvent.Post.class, event -> {
-            MinecraftServer s = event.getServer();
-            for (ServerLevel world : s.getAllLevels()) {
+        // Fabric bound this cleanup to IPGlobal.SERVER_CLEANUP_EVENT (fired once, at server
+        // shutdown). The Neo port previously mis-bound it to ServerTickEvent.Post, which ran
+        // onServerClose() -- and therefore removed every global portal with
+        // RemovalReason.UNLOADED_TO_CHUNK -- on EVERY server tick instead of at shutdown.
+        // ServerCleanupEvent (de.nick1st.imm_ptl.events) is this port's equivalent of
+        // SERVER_CLEANUP_EVENT; ImmPtlChunkTracking#init already binds its own shutdown cleanup
+        // to it the same way.
+        NeoForge.EVENT_BUS.addListener(ServerCleanupEvent.class, event -> {
+            MinecraftServer server = event.server;
+            for (ServerLevel world : server.getAllLevels()) {
                 get(world).onServerClose();
             }
         });
-        // @Nick1st - DimLib removal
-//        NeoForge.EVENT_BUS.addListener(DimensionEvents.ServerDimensionDynamicUpdateEvent.class, event -> {
-//            for (ServerLevel world : server.getAllLevels()) {
-//                GlobalPortalStorage gps = get(world);
-//                gps.clearAbnormalPortals(server);
-//                gps.syncToAllPlayers();
-//            }
-//        });
+
+        // Fabric also registered DimensionAPI.SERVER_DIMENSION_DYNAMIC_UPDATE_EVENT here to
+        // re-validate global portals (drop ones pointing at a now-missing dimension, then
+        // resync) whenever the server's dimension set changed. This port's DimensionEvents
+        // has no equivalent live event -- see DimensionIntId#fillInLoadedDimIds, which
+        // documents the same gap (Faz1 T2) -- so rather than invent an event that doesn't
+        // exist, run the same clearAbnormalPortals + sync defensively once, after all
+        // dimensions are loaded at server start (ServerStartedEvent fires after
+        // MixinMinecraftServer_Misc#onWorldsCreated / DimensionIntId#onServerStarted, i.e.
+        // after the same "all levels loaded" point fillInLoadedDimIds relies on). This still
+        // does not cover dimensions created dynamically at runtime after boot (e.g. AE2
+        // spatial storage) -- there is no live hook for that case in this port.
+        NeoForge.EVENT_BUS.addListener(ServerStartedEvent.class, event -> {
+            MinecraftServer server = event.getServer();
+            for (ServerLevel world : server.getAllLevels()) {
+                GlobalPortalStorage gps = get(world);
+                gps.clearAbnormalPortals(server);
+                gps.syncToAllPlayers();
+            }
+        });
 
         if (!O_O.isDedicatedServer()) {
             initClient();
