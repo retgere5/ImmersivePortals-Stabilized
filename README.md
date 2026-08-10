@@ -38,6 +38,11 @@ portal rendering in use`). The modpack boots and portals still work, just withou
 rendering optimizations for portal views. Full Sodium 0.8 integration is tracked as later work,
 not covered by this gate.
 
+The Iris-only compat mixins (the ones that don't also touch Sodium) are presence-gated on Iris
+being loaded at all, not yet version-gated the way the Sodium mixins are. Pairing a future Iris
+release with Sodium 0.8 may therefore still need updates before it works; full Sodium 0.8 support
+(including its Iris pairing) is planned but not yet done.
+
 ## API
 
 This mod also provides some API for:

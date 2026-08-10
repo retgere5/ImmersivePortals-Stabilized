@@ -22,27 +22,36 @@ each with a targeted regression test.
   consult vanilla tracking (Mekanism-class issues).
 - Null-pointer crash when the portal frustum culler is uninitialized; falls
   back to vanilla culling instead.
-- Portal render pass used a null `hitResult` instead of a miss result,
-  causing a crash; fixed to use the miss result.
+- Portal render pass used a null `hitResult` during its second render pass
+  instead of a miss result; third-party render-stage event handlers that
+  assume a non-null `hitResult` (the LittleTiles class of crash, #36) could
+  throw on it. Fixed to use the miss result instead.
 - Global portal cleanup was bound to the wrong event, deleting global portals
   almost immediately after creation instead of at server shutdown; rebound
   to the correct shutdown event, abnormal-portal cleanup restored, portal
   entities' zero-size dimensions restored (both were regressions from the
   port), and the mod now reports its real version instead of a `1.0.0` stub.
 - Teleportation kill-switch (`disableTeleportation`) now also gates the
-  server-side teleport path, not just the client-side one.
+  server-side teleport path, not just the client-side one. The flag is not
+  client-synced: enabling it server-side only causes affected clients to
+  rubber-band back through the portal instead of a silent no-op.
 - Sodium 0.8 fails soft instead of crashing world creation: the Sodium/Iris
   compat mixins are now version-gated and simply skip themselves (with a
   warning) when an unsupported Sodium is detected, falling back to vanilla
   portal rendering. Full 0.8 support is still pending and requires
-  NeoForge >= 21.1.219.
+  NeoForge >= 21.1.219 (Sodium 0.8.x builds declare that requirement via
+  their bundled Fabric-API shims).
 
 ### Changed
 
 - Mod version reporting is now accurate (see Fixed above), which has a
   handshake implication: mismatch warnings/kicks against `6.0.7` clients are
   now possible where they weren't before, subject to the existing tolerance
-  flags.
+  flags. This also applies within `6.1.0`: updating a server from
+  `6.1.0-alpha.1` to `alpha.2` reports a real `6.1.0` version where alpha.1
+  reported the `1.0.0` stub, so not-yet-updated `alpha.1` clients now see a
+  major version mismatch and get kicked on join unless the tolerance flags
+  are enabled.
 
 ## [6.1.0-alpha.1] - 2026-08-10
 

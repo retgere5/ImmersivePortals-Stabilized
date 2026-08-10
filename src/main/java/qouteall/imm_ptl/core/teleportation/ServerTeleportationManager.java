@@ -213,11 +213,22 @@ public class ServerTeleportationManager {
             
         }
         else {
-            LOGGER.error(
-                "Player {} {} {} cannot teleport through portal {}\nReason: {}",
-                player, player.level().dimension().location(), player.position(),
-                portal, failReason
-            );
+            if (IPGlobal.disableTeleportation) {
+                // Not a bug: the kill-switch is doing exactly what it's meant to.
+                // Log at INFO so an operator can see teleports are being rejected
+                // without it reading as an error condition.
+                LOGGER.info(
+                    "Player {} {} {} did not teleport through portal {}: teleportation is disabled by the kill-switch",
+                    player, player.level().dimension().location(), player.position(), portal
+                );
+            }
+            else {
+                LOGGER.error(
+                    "Player {} {} {} cannot teleport through portal {}\nReason: {}",
+                    player, player.level().dimension().location(), player.position(),
+                    portal, failReason
+                );
+            }
             teleportEntityGeneral(player, player.position(), ((ServerLevel) player.level()));
             ScaleUtils.setBaseScale(player, ScaleUtils.getBaseScale(player));
             GravityChangerInterface.invoker.setBaseGravityDirectionServer(
