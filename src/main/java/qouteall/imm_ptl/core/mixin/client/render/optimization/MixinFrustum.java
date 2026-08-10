@@ -82,6 +82,14 @@ public class MixinFrustum implements IEFrustum {
         double minX, double minY, double minZ, double maxX, double maxY, double maxZ,
         CallbackInfoReturnable<Boolean> cir
     ) {
+        // portal_frustumCuller is only set up in prepare()'s TAIL. Third-party Frustum
+        // instances (Distant Horizons, Simple Clouds, etc.) build their own Frustum and
+        // never call prepare() on it, and Iris skips prepare() entirely during its shadow
+        // pass. In either case just let vanilla cubeInFrustum decide instead of crashing.
+        if (portal_frustumCuller == null) {
+            return;
+        }
+
         if (ip_canDetermineInvisibleWithCamCoord(
             (float) (minX - portal_camX),
             (float) (minY - portal_camY),
