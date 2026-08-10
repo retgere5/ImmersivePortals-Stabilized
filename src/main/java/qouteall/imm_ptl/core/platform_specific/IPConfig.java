@@ -96,7 +96,13 @@ public class IPConfig implements ConfigData {
     
     public boolean enableMirrorCreation =
         IPFeatureControl.enableVanillaBehaviorChangingByDefault();
-    
+
+    // quarantine kill-switches -- see docs/audit for the rationale. Names are load-bearing:
+    // Task 9's safe modpack profile references these exact field names.
+    public boolean enableDimensionStack = true;
+    public boolean disableTeleportation = false;
+    public boolean enableCrossPortalCollision = true;
+
     public boolean enableWarning = true;
     public boolean lightVanillaNetherPortalWhenCrouching = true;
     @ConfigEntry.Gui.Tooltip
@@ -204,7 +210,11 @@ public class IPConfig implements ConfigData {
         IPGlobal.maxNormalPortalRadius = Math.max(regularPortalLengthLimit / 2, 16);
         IPGlobal.chunkPacketDebug = chunkPacketDebug;
         IPGlobal.saveMemoryInBufferPack = saveMemoryInBufferPack;
-        
+
+        IPGlobal.enableDimensionStack = enableDimensionStack;
+        IPGlobal.disableTeleportation = disableTeleportation;
+        IPGlobal.crossPortalCollision = enableCrossPortalCollision;
+
         Helper.LOGGER.info("iPortal Config Applied");
     }
     

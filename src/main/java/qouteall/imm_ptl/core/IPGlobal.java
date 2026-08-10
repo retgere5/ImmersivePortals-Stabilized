@@ -71,7 +71,12 @@ public class IPGlobal {
     public static boolean cloudOptimization = true;
     
     public static boolean crossPortalCollision = true;
-    
+
+    // quarantine kill-switch -- default matches IPConfig.enableDimensionStack's default so
+    // pre-config-sync reads (e.g. mod-construction-time init gates) stay consistent with the
+    // eventual config value.
+    public static boolean enableDimensionStack = true;
+
     public static boolean netherPortalOverlay = false;
     
     public static boolean debugDisableFog = false;

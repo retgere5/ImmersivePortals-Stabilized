@@ -52,7 +52,7 @@ public class DimStackManagement {
     }
 
     private static boolean isDimStackEnabled() {
-        return true;
+        return IPGlobal.enableDimensionStack;
     }
     
     // at that time, only overworld has been created, only overworld data can be read
@@ -174,6 +174,13 @@ public class DimStackManagement {
     public static void onDimensionStackCommandExecute(
         ServerPlayer player
     ) {
+        if (!isDimStackEnabled()) {
+            player.sendSystemMessage(Component.literal(
+                "Dimension stack feature is not enabled"
+            ));
+            return;
+        }
+
         List<String> dimIdList = collectDimStackCandidateWhenServerRunning(player.server)
             .stream().map(k -> k.location().toString()).toList();
         
