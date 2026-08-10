@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Context: Sodium 0.8 removed internals (e.g. {@code OcclusionCuller$Visitor}) that the
  * Sodium/IrisSodium compat mixins in imm_ptl_compat.mixins.json target. Applying those mixins
  * against Sodium 0.8 fails at mixin APPLY time with a ClassMetadataNotFoundException, hard
- * crashing world creation (see docs/audit/faz0-evidence.md Kume A). Before this fix,
- * {@code IPCompatMixinPlugin.shouldApplyMixin} only gated on mod presence, never version.
+ * crashing world creation. Before this fix, {@code IPCompatMixinPlugin.shouldApplyMixin} only
+ * gated on mod presence, never version.
  * <p>
  * Contract under test: {@code isSodiumVersionSupported} must return true only for the 0.6.x
  * generation (major.minor == 0.6), regardless of which wrapper shape the raw version string

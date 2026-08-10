@@ -162,12 +162,12 @@ public class IPCompatMixinPlugin implements IMixinConfigPlugin {
         // Sodium 0.8+ removed internals (e.g. OcclusionCuller$Visitor) that the Sodium/IrisSodium
         // compat mixins below target; applying those mixins against an unsupported Sodium version
         // fails at mixin APPLY time with ClassMetadataNotFoundException, hard-crashing world
-        // creation (see docs/audit/faz0-evidence.md Kume A). This pre-gate sits IN FRONT of the
-        // substring checks below and returns false early for any Sodium-related mixin (this also
-        // covers "IrisSodium" mixins, since that name already contains "Sodium") when the detected
-        // version is unsupported -- vanilla portal rendering is used instead of crashing. The
-        // substring check chain below is otherwise untouched: its order is load-bearing
-        // (IrisSodium before Iris before Sodium) and this pre-gate does not reorder it.
+        // creation. This pre-gate sits IN FRONT of the substring checks below and returns false
+        // early for any Sodium-related mixin (this also covers "IrisSodium" mixins, since that
+        // name already contains "Sodium") when the detected version is unsupported -- vanilla
+        // portal rendering is used instead of crashing. The substring check chain below is
+        // otherwise untouched: its order is load-bearing (IrisSodium before Iris before Sodium)
+        // and this pre-gate does not reorder it.
         if (mixinClassName.contains("Sodium")) {
             if (isSodiumPresentButUnsupported(modList)) {
                 return false;

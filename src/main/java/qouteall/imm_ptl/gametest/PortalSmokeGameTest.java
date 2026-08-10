@@ -43,7 +43,7 @@ public class PortalSmokeGameTest {
     }
 
     /**
-     * Faz1 T7 regression coverage: the server-side half of the {@code disableTeleportation}
+     * Regression coverage for the server-side half of the {@code disableTeleportation}
      * kill switch.
      * <p>
      * Drives {@link ServerTeleportationManager#startTeleportingRegularEntity} directly --
@@ -88,7 +88,7 @@ public class PortalSmokeGameTest {
      * {@code IPGlobal.disableTeleportation} forced on for the duration of the
      * {@code startTeleportingRegularEntity} call.
      * <p>
-     * Before the Faz1 T7 gate, this call would still schedule and complete the teleport --
+     * Before the server-side gate was added, this call would still schedule and complete the teleport --
      * {@code disableTeleportation} only gated {@code ClientTeleportationManager}. After the
      * gate, {@code startTeleportingRegularEntity} returns immediately without scheduling
      * anything, so the entity never moves. The flag is restored in a {@code finally} block

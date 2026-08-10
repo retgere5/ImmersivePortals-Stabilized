@@ -103,7 +103,7 @@ public class Portal extends Entity implements
         // eyeHeight = height * 0.85f = 0). The Neo port's "First 1.21 Port" commit had replaced
         // this with a nonzero 1x1x0.85 box, which is an upstream regression: portal entities are
         // deliberately zero-size so they never contribute their own collision/eye-height to
-        // players standing near or inside them (see fork divergence analysis, Faz1 T6).
+        // players standing near or inside them. Restored to match the original Fabric behavior.
         builder.dimensions = EntityDimensions.fixed(0, 0);
 
         return builder.build("");

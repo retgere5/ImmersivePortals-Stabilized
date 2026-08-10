@@ -97,8 +97,9 @@ public class IPConfig implements ConfigData {
     public boolean enableMirrorCreation =
         IPFeatureControl.enableVanillaBehaviorChangingByDefault();
 
-    // quarantine kill-switches -- see docs/audit for the rationale. Names are load-bearing:
-    // Task 9's safe modpack profile references these exact field names.
+    // Quarantine kill-switches for exotic/risky features, so they can be toggled off
+    // independently instead of ripped out. Field names are load-bearing: the safe modpack
+    // profile (safe-profile/immersive_portals.json) references these exact names.
     public boolean enableDimensionStack = true;
     // gates both client-side (ClientTeleportationManager) and server-side
     // (ServerTeleportationManager) teleportation paths

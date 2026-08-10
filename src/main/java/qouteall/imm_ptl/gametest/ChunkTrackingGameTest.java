@@ -43,7 +43,7 @@ import java.util.UUID;
 public class ChunkTrackingGameTest {
     @PrefixGameTestTemplate(false)
     @GameTest(template = "empty_5x5", timeoutTicks = 100)
-    public static void vanillaChunkTrackingViewIsMaintained(GameTestHelper helper) {
+    public static void vanillaChunkTrackingViewStaysPopulated(GameTestHelper helper) {
         ServerPlayer player = joinMockServerPlayer(helper);
         try {
             ServerLevel level = player.serverLevel();

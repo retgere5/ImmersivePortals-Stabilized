@@ -84,10 +84,11 @@ public class IPModEntryClient {
             else {
                 // Unsupported Sodium (e.g. 0.8.x): leave SodiumInterface.invoker at its default
                 // no-op, so rendering falls back to the vanilla portal path instead of hitting the
-                // ClassMetadataNotFoundException crash the Sodium compat mixins would cause (see
-                // docs/audit/faz0-evidence.md Kume A). IPCompatMixinPlugin.shouldApplyMixin already
-                // logs the single "unsupported Sodium" warning for this case (it runs earlier, during
-                // mixin application) -- intentionally not repeating it here to keep it to one line.
+                // ClassMetadataNotFoundException crash the Sodium compat mixins would cause (Sodium
+                // 0.8 removed internals like OcclusionCuller$Visitor that those mixins target).
+                // IPCompatMixinPlugin.shouldApplyMixin already logs the single "unsupported Sodium"
+                // warning for this case (it runs earlier, during mixin application) -- intentionally
+                // not repeating it here to keep it to one line.
                 Helper.log("Sodium " + sodiumRawVersion + " is unsupported; using vanilla portal rendering");
             }
 

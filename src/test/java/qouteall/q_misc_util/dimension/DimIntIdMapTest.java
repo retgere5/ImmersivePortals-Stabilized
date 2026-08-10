@@ -135,9 +135,9 @@ public class DimIntIdMapTest {
     // toIntegerId stopped being a pure read once it could lazily add() a new
     // entry, and it is reachable off the server thread: packet redirection
     // (PacketRedirection.createRedirectedMessage / withForceRedirectAndGet)
-    // only logs a warning on a thread mismatch, it does not prevent one (see
-    // docs/audit/neo-issues-2026-08-08.json issue #56 for a real
-    // ForkJoinWorkerThread stack through withForceRedirectAndGet). Before the
+    // only logs a warning on a thread mismatch, it does not prevent one (seen
+    // in practice as a real ForkJoinWorkerThread stack reaching
+    // withForceRedirectAndGet off the server thread). Before the
     // fix, two threads racing a lazy assignment could both observe MISSING_ID
     // and then collide in add() ("Dimension Id Record already contains ..."),
     // or corrupt the backing fastutil maps during a concurrent resize. This

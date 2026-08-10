@@ -92,7 +92,7 @@ public class GlobalPortalStorage extends SavedData {
         // re-validate global portals (drop ones pointing at a now-missing dimension, then
         // resync) whenever the server's dimension set changed. This port's DimensionEvents
         // has no equivalent live event -- see DimensionIntId#fillInLoadedDimIds, which
-        // documents the same gap (Faz1 T2) -- so rather than invent an event that doesn't
+        // documents the same gap -- so rather than invent an event that doesn't
         // exist, run the same clearAbnormalPortals + sync defensively once, after all
         // dimensions are loaded at server start (ServerStartedEvent fires after
         // MixinMinecraftServer_Misc#onWorldsCreated / DimensionIntId#onServerStarted, i.e.

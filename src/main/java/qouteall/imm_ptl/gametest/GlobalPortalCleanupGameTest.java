@@ -10,7 +10,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.global_portals.GlobalPortalStorage;
 
 /**
- * Regression test for the global portal cleanup event mis-binding (Faz1 T6, fix a).
+ * Regression test for the global portal cleanup event mis-binding.
  * <p>
  * {@link GlobalPortalStorage#init()} used to bind {@code onServerClose()} (which removes every
  * global portal with {@code RemovalReason.UNLOADED_TO_CHUNK}) to
