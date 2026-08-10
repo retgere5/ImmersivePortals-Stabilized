@@ -17,6 +17,13 @@ This mod changes a lot of underlying Minecraft mechanics. This mod allows the cl
 
 (This is the Fabric version of Immersive Portals. [The Forge version](https://github.com/iPortalTeam/ImmersivePortalsModForNeo))
 
+## For Modpack Makers
+Copy `safe-profile/immersive_portals.json` into your pack's `config/` folder for the
+stability-first profile: exotic features (dimension stack) off, recursion capped at 3,
+cross-portal chunk radius capped at 4, no network calls. The first-launch info wizard is
+pre-acknowledged in this profile, so pack users won't see it on first boot. Core seamless
+portals stay fully enabled. Individual switches are documented in the file.
+
 ## API
 
 This mod also provides some API for:
