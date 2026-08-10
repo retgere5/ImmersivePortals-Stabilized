@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project tries to adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 6.1.0-alpha.1 (Unreleased)
+## [6.1.0-alpha.1] - Unreleased
 
 Fork setup phase: gets the project building cleanly under its own identity, on
 a green CI, with the risky/exotic features quarantined behind switches instead
@@ -34,8 +34,8 @@ of removed.
 ### Fixed
 
 - Build hygiene: purged dead build files, fixed the template group id, reconciled
-  the mixin config list and `accesstransformer.cfg` (they had drifted out of sync),
-  restored the missing mod icon.
+  the build-script access-transformer list and `accesstransformer.cfg` (they had
+  drifted out of sync), restored the missing mod icon.
 - Stale gametest namespace property (`forge.enabledGameTestNamespaces`) was a
   silent no-op under NeoForge; corrected to `neoforge.enabledGameTestNamespaces`
   so gametest filtering actually happens.
