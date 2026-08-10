@@ -4,11 +4,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.PlayerChunkSender;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
-import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -17,12 +14,23 @@ import qouteall.imm_ptl.core.chunk_loading.ImmPtlChunkTracking;
 /**
  * Disable the functionality of this class.
  * Because its implementation is based on single-dimension loaded and near-loading-only assumption.
+ * <p>
+ * NOTE these no-ops are load-bearing for cooperative chunk tracking
+ * ({@link qouteall.imm_ptl.core.mixin.common.chunk_sync.MixinChunkMap_C}):
+ * vanilla {@link net.minecraft.server.level.ChunkMap#applyChunkTrackingView} /
+ * {@link net.minecraft.server.level.ChunkMap#onChunkReadyToSend} run un-cancelled and their
+ * packet side effects all funnel through {@link PlayerChunkSender#markChunkPendingToSend} and
+ * {@link PlayerChunkSender#dropChunk}. Keeping both no-op means vanilla tracking updates the
+ * per-player {@link net.minecraft.server.level.ChunkTrackingView} without sending any chunk
+ * data or unload packets (ImmPtl sends those itself, multi-dim and redirected).
+ * It also keeps {@code pendingChunks} permanently empty, so the un-mixined vanilla
+ * {@link PlayerChunkSender#isPending} naturally returns false and
+ * {@link net.minecraft.server.level.ChunkMap#isChunkTracked} reduces to a tracking-view check.
  */
 @SuppressWarnings({"JavadocReference", "UnstableApiUsage"})
 @Mixin(value = PlayerChunkSender.class)
 public class MixinPlayerChunkSender {
-    @Shadow @Final private static Logger LOGGER;
-    
+
     /**
      * @author qouteall
      * @reason see class comment
@@ -61,16 +69,6 @@ public class MixinPlayerChunkSender {
      */
     @Overwrite
     public void onChunkBatchReceivedByClient(float f) {
-    
-    }
-    
-    /**
-     * @author qouteall
-     * @reason see class comment
-     */
-    @Overwrite
-    public boolean isPending(long l) {
-        LOGGER.error("This should not be called", new Throwable());
-        return false;
+
     }
 }
