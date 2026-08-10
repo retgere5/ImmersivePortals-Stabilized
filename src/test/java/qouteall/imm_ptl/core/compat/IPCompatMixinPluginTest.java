@@ -1,4 +1,4 @@
-﻿package qouteall.imm_ptl.core.compat;
+package qouteall.imm_ptl.core.compat;
 
 import org.junit.jupiter.api.Test;
 
