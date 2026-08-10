@@ -15,9 +15,12 @@ import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -182,7 +185,9 @@ public class MyGameRenderer {
             client.hitResult = BlockManipulationClient.remoteHitResult;
         }
         if (!PortalRendering.shouldRenderHitResult()) {
-            client.hitResult = null;
+            // render-stage event handlers assume a non-null hitResult (vanilla guarantees it);
+            // a miss result hides the real crosshair target during the portal pass while keeping those handlers safe (#36 class)
+            client.hitResult = BlockHitResult.miss(thisTickCameraPos, Direction.UP, BlockPos.containing(thisTickCameraPos));
         }
         ieGameRenderer.ip_setCamera(newCamera);
         
