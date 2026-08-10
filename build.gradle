@@ -63,7 +63,7 @@ jarJar.enable()
 // them broke the dev recompile pipeline. src/main/resources/META-INF/accesstransformer.cfg
 // (registered via [[accessTransformers]] in neoforge.mods.toml) is the separate AT applied to
 // the production jar at runtime. The two lists had drifted out of sync (18 vs 17 entries; cfg
-// was missing ItemStackComponentizationFix$ItemStackData) — reconciled by adding the missing
+// was missing ItemStackComponentizationFix$ItemStackData) -- reconciled by adding the missing
 // line to accesstransformer.cfg so both now declare the same 18 entries.
 minecraft.accessTransformers.entry 'public net.minecraft.server.MinecraftServer storageSource'
 minecraft.accessTransformers.entry 'public net.minecraft.world.level.biome.BiomeManager biomeZoomSeed'

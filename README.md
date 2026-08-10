@@ -5,7 +5,7 @@ by qouteall & Nick1st (Apache-2.0). Original Fabric mod: https://github.com/iPor
 Focus: modpack stability (NeoForge 1.21.1), quarantine switches for exotic features, performance.
 The upstream repos are archived/dormant; this fork continues that work with attribution.
 
-# Immersive Portals Mod
+## Immersive Portals Mod
 
 It's a Minecraft mod that provides see-through portals and seamless teleportation. It also can create "Non-Euclidean" (Uneuclidean) space effect.
 
@@ -15,14 +15,14 @@ It's a Minecraft mod that provides see-through portals and seamless teleportatio
 
 This mod changes a lot of underlying Minecraft mechanics. This mod allows the client to load multiple dimensions at the same time and synchronize remote world information(blocks/entities) to client. It can render portal-in-portals. The portal rendering is roughly compatible with some versions of Sodium and Iris. The portal can transform player scale and gravity direction.  [Implementation Details](https://qouteall.fun/immptl/wiki/Implementation-Details)
 
-(This is the Fabric version of Immersive Portals. [The Forge version](https://github.com/iPortalTeam/ImmersivePortalsModForNeo))
-
 ## For Modpack Makers
 Copy `safe-profile/immersive_portals.json` into your pack's `config/` folder for the
 stability-first profile: exotic features (dimension stack) off, recursion capped at 3,
-cross-portal chunk radius capped at 4, no network calls. The first-launch info wizard is
-pre-acknowledged in this profile, so pack users won't see it on first boot. Core seamless
-portals stay fully enabled. Individual switches are documented in the file.
+cross-portal chunk radius capped at 4, portal render count capped at 100, no network calls.
+The first-launch info wizard is pre-acknowledged in this profile, so pack users won't see it
+on first boot. Core seamless portals stay fully enabled. The file's key names are
+self-describing; it also carries a `check_the_wiki_for_more_information` link to the
+[wiki's config page](https://qouteall.fun/immptl/wiki/Config-Options) for anything not obvious.
 
 ## API
 
