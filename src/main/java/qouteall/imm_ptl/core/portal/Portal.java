@@ -99,7 +99,12 @@ public class Portal extends Entity implements
             .updateInterval(20)
             .setShouldReceiveVelocityUpdates(true);
 
-        builder.dimensions = new EntityDimensions(1, 1, .85f, EntityAttachments.createDefault(1, 1), true);
+        // eye height should be 0 (matches upstream: EntityDimensions.fixed(0, 0) implies
+        // eyeHeight = height * 0.85f = 0). The Neo port's "First 1.21 Port" commit had replaced
+        // this with a nonzero 1x1x0.85 box, which is an upstream regression: portal entities are
+        // deliberately zero-size so they never contribute their own collision/eye-height to
+        // players standing near or inside them (see fork divergence analysis, Faz1 T6).
+        builder.dimensions = EntityDimensions.fixed(0, 0);
 
         return builder.build("");
     }
