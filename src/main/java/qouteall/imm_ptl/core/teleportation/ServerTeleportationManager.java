@@ -23,6 +23,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
+import qouteall.imm_ptl.core.IPGlobal;
 import qouteall.imm_ptl.core.IPMcHelper;
 import qouteall.imm_ptl.core.IPPerServerInfo;
 import qouteall.imm_ptl.core.McHelper;
@@ -101,6 +102,9 @@ public class ServerTeleportationManager {
     }
     
     public void startTeleportingRegularEntity(Portal portal, Entity entity) {
+        if (IPGlobal.disableTeleportation) {
+            return;
+        }
         if (entity instanceof ServerPlayer) {
             return;
         }
@@ -177,9 +181,11 @@ public class ServerTeleportationManager {
         
         Vec3 oldFeetPos = eyePosBeforeTeleportation.subtract(McHelper.getEyeOffset(player));
         
-        String failReason = validatePlayerTeleportationAndGetReason(
-            player, dimensionBefore, oldFeetPos, portal
-        );
+        String failReason = IPGlobal.disableTeleportation
+            ? "teleportation is disabled by IPGlobal.disableTeleportation"
+            : validatePlayerTeleportationAndGetReason(
+                player, dimensionBefore, oldFeetPos, portal
+            );
         if (failReason == null) {
             if (isTeleporting(player)) {
                 LOGGER.info("{} is teleporting frequently", player);

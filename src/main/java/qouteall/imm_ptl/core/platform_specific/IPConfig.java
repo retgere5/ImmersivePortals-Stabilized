@@ -100,7 +100,8 @@ public class IPConfig implements ConfigData {
     // quarantine kill-switches -- see docs/audit for the rationale. Names are load-bearing:
     // Task 9's safe modpack profile references these exact field names.
     public boolean enableDimensionStack = true;
-    // client-side gate only (ClientTeleportationManager); server-side gating planned
+    // gates both client-side (ClientTeleportationManager) and server-side
+    // (ServerTeleportationManager) teleportation paths
     public boolean disableTeleportation = false;
     public boolean enableCrossPortalCollision = true;
 
