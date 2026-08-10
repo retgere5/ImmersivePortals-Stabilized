@@ -19,6 +19,7 @@ import qouteall.imm_ptl.core.McHelper;
 import qouteall.q_misc_util.MiscNetworking;
 
 import java.util.HashSet;
+import java.util.List;
 
 public class DimensionIntId {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -186,10 +187,63 @@ public class DimensionIntId {
         syncDimIdMapToPlayers(server);
     }
 
+    /**
+     * Thread-hardening for #54's off-thread lazy-assignment path
+     * ({@link #serverDimKeyToInt}): {@code withForceRedirectAndGet} only
+     * logs a warning on a server-thread mismatch, it does not prevent one,
+     * so this can be reached from e.g. a ForkJoinWorkerThread doing packet
+     * redirection. Without protection, this method's iteration of
+     * {@code server.getPlayerList().getPlayers()} (and, transitively via
+     * {@code DimIdSyncPacket.createFromServer}, {@code server.getAllLevels()})
+     * races the server thread's own mutation of those same live collections
+     * (players joining/leaving, levels loading/unloading) -- a
+     * ConcurrentModificationException there would abort the broadcast loop
+     * partway through, silently leaving the remaining players on a stale
+     * client-side map. Such a player then throws on the next packet that
+     * references the new dimension id ({@code DimIntIdMap#fromIntegerId} on
+     * the client) -- the exact crash class #54 closed on the server side,
+     * reopened here through a different door.
+     * <p>
+     * On-thread callers stay synchronous rather than also hopping through
+     * {@code server.execute}: the wrapped packet that references the new id
+     * (built by {@code PacketRedirection.createRedirectedMessage} right
+     * after this method returns) must reach the client's connection after
+     * the sync packet. Both packets are handed to the same per-connection
+     * Netty event loop via {@code Connection.send}; when both
+     * {@code ServerCommonPacketListenerImpl.send} calls happen back-to-back
+     * on the same calling thread, they're submitted to that event loop in
+     * that order and Netty preserves FIFO order, so staying synchronous here
+     * is what keeps the ordering intact.
+     * <p>
+     * The off-thread hop below does NOT carry the same ordering guarantee,
+     * and that should be stated honestly rather than assumed: the redirected
+     * packet's own {@code Connection.send} runs synchronously on the calling
+     * (off) thread immediately after this method returns, so it can be
+     * submitted to the Netty event loop before the {@code server.execute}
+     * task below even runs. For that one player's connection, the redirected
+     * packet can beat the sync packet to the wire. The failure mode if that
+     * race is lost is the same "Missing Dimension" client-side throw
+     * described above, but narrowed to a single player/dimension instead of
+     * the whole broadcast -- a bounded, loud (logged/thrown, not silent)
+     * failure that is an acceptable trade for eliminating the broadcast-wide
+     * CME/skip hazard this method exists to fix. {@code createPacket}'s
+     * {@code server.getAllLevels()} iteration is covered by the same hop,
+     * since it happens inside this method's call frame.
+     */
     private static void syncDimIdMapToPlayers(MinecraftServer server) {
+        if (!server.isSameThread()) {
+            server.execute(() -> syncDimIdMapToPlayers(server));
+            return;
+        }
+
         var packet = MiscNetworking.DimIdSyncPacket.createPacket(server);
 
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+        // Snapshot before iterating: even on-thread, sending to one
+        // player's connection can synchronously trigger disconnect handling
+        // that mutates the player list, which would otherwise throw
+        // ConcurrentModificationException mid-broadcast.
+        List<ServerPlayer> players = List.copyOf(server.getPlayerList().getPlayers());
+        for (ServerPlayer player : players) {
             player.connection.send(packet);
         }
     }
