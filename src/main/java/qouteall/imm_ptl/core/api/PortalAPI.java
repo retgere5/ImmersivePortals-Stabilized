@@ -168,7 +168,7 @@ public class PortalAPI {
     }
     
     public static int serverDimKeyToInt(MinecraftServer server, ResourceKey<Level> dimension) {
-        return DimensionIntId.getServerMap(server).toIntegerId(dimension);
+        return DimensionIntId.serverDimKeyToInt(server, dimension);
     }
     
     public static ResourceKey<Level> serverIntToDimKey(MinecraftServer server, int integerId) {
