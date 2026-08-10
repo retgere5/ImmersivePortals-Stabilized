@@ -24,6 +24,20 @@ on first boot. Core seamless portals stay fully enabled. The file's key names ar
 self-describing; it also carries a `check_the_wiki_for_more_information` link to the
 [wiki's config page](https://qouteall.fun/immptl/wiki/Config-Options) for anything not obvious.
 
+## Known limitations
+
+**Sodium version gate.** The Sodium/Iris-Sodium render-compat mixins in this fork are written
+against the Sodium 0.6.x generation and are only applied when a supported Sodium (or Embeddium,
+which is 0.6-based) version is detected. Sodium 0.8.x removed internals those mixins depend on
+(e.g. `OcclusionCuller$Visitor`), which previously crashed world creation on any modpack that
+paired this mod with Sodium 0.8. As of this fork, an unsupported Sodium version now fails soft
+instead: the Sodium/Iris-Sodium compat mixins are skipped, portal rendering falls back to the
+vanilla (non-Sodium) path, and a single warning is logged
+(`Immersive Portals: unsupported Sodium <version>; portal-Sodium integration disabled, vanilla
+portal rendering in use`). The modpack boots and portals still work, just without Sodium's
+rendering optimizations for portal views. Full Sodium 0.8 integration is tracked as later work,
+not covered by this gate.
+
 ## API
 
 This mod also provides some API for:
