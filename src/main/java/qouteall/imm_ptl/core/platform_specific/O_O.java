@@ -145,39 +145,32 @@ public class O_O {
     }
     
     public static @NotNull ImmPtlNetworkConfig.ModVersion getImmPtlVersion() {
-        // TODO @Nick1st
-//        Version version = FabricLoader.getInstance()
-//            .getModContainer("iportal").orElseThrow()
-//            .getMetadata().getVersion();
-//
-//        if (!(version instanceof SemanticVersionImpl semanticVersion)) {
-//            // in dev env, its ${version}
-//            return ImmPtlNetworkConfig.ModVersion.OTHER;
-//        }
-//
-//        if (semanticVersion.getVersionComponentCount() != 3) {
-//            Helper.LOGGER.error(
-//                "immersive portals version {} is not in regular form", semanticVersion
-//            );
-//            return ImmPtlNetworkConfig.ModVersion.OTHER;
-//        }
-//
-//        return new ImmPtlNetworkConfig.ModVersion(
-//            semanticVersion.getVersionComponent(0),
-//            semanticVersion.getVersionComponent(1),
-//            semanticVersion.getVersionComponent(2)
-//        );
+        Optional<? extends ModContainer> modContainer =
+            ModList.get().getModContainerById("immersive_portals_core");
+
+        if (modContainer.isEmpty()) {
+            Helper.LOGGER.error("Cannot find immersive_portals_core mod container to read version");
+            return ImmPtlNetworkConfig.ModVersion.OTHER;
+        }
+
+        ArtifactVersion version = modContainer.get().getModInfo().getVersion();
+
         return new ImmPtlNetworkConfig.ModVersion(
-                1, 0, 0
+            version.getMajorVersion(),
+            version.getMinorVersion(),
+            version.getIncrementalVersion()
         );
     }
-    
+
     public static String getImmPtlVersionStr() {
-        // TODO @Nick1st
-//        return FabricLoader.getInstance()
-//            .getModContainer("iportal").orElseThrow()
-//            .getMetadata().getVersion().toString();
-        return "";
+        Optional<? extends ModContainer> modContainer =
+            ModList.get().getModContainerById("immersive_portals_core");
+
+        if (modContainer.isEmpty()) {
+            return "";
+        }
+
+        return modContainer.get().getModInfo().getVersion().toString();
     }
     
     public static boolean shouldUpdateImmPtl(String latestReleaseVersion) {
