@@ -6,6 +6,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -118,5 +128,110 @@ public class DimIntIdMapTest {
         map.toIntegerId(Level.OVERWORLD);
 
         assertFalse(map.isDirty());
+    }
+
+    // --- Thread-safety coverage ---
+    //
+    // toIntegerId stopped being a pure read once it could lazily add() a new
+    // entry, and it is reachable off the server thread: packet redirection
+    // (PacketRedirection.createRedirectedMessage / withForceRedirectAndGet)
+    // only logs a warning on a thread mismatch, it does not prevent one (see
+    // docs/audit/neo-issues-2026-08-08.json issue #56 for a real
+    // ForkJoinWorkerThread stack through withForceRedirectAndGet). Before the
+    // fix, two threads racing a lazy assignment could both observe MISSING_ID
+    // and then collide in add() ("Dimension Id Record already contains ..."),
+    // or corrupt the backing fastutil maps during a concurrent resize. This
+    // test hammers toIntegerId from many threads, racing both the SAME
+    // unknown key (must converge on one id) and DIFFERENT unknown keys (must
+    // not collide), repeated many times to make a real race likely to surface.
+
+    @Test
+    public void concurrentLazyAssignmentIsThreadSafe() throws InterruptedException {
+        DimIntIdMap map = mapWithVanillaDims();
+
+        final int threadCount = 8;
+        final int iterations = 200;
+
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        List<Throwable> errors = Collections.synchronizedList(new ArrayList<>());
+
+        try {
+            for (int iter = 0; iter < iterations; iter++) {
+                ResourceKey<Level> sharedUnknown = dim("racepack", "shared_" + iter);
+                List<ResourceKey<Level>> perThreadUnknown = new ArrayList<>();
+                for (int t = 0; t < threadCount; t++) {
+                    perThreadUnknown.add(dim("racepack", "distinct_" + iter + "_" + t));
+                }
+
+                CountDownLatch startGate = new CountDownLatch(1);
+                CountDownLatch doneLatch = new CountDownLatch(threadCount * 2);
+                int[] sharedResults = new int[threadCount];
+                int[] distinctResults = new int[threadCount];
+
+                for (int t = 0; t < threadCount; t++) {
+                    final int threadIndex = t;
+
+                    // half the work: every thread races on the exact same unknown key
+                    executor.submit(() -> {
+                        try {
+                            startGate.await();
+                            sharedResults[threadIndex] = map.toIntegerId(sharedUnknown);
+                        }
+                        catch (Throwable thrown) {
+                            errors.add(thrown);
+                        }
+                        finally {
+                            doneLatch.countDown();
+                        }
+                    });
+
+                    // the other half: each thread races on its own distinct unknown key
+                    executor.submit(() -> {
+                        try {
+                            startGate.await();
+                            distinctResults[threadIndex] = map.toIntegerId(perThreadUnknown.get(threadIndex));
+                        }
+                        catch (Throwable thrown) {
+                            errors.add(thrown);
+                        }
+                        finally {
+                            doneLatch.countDown();
+                        }
+                    });
+                }
+
+                startGate.countDown();
+                assertTrue(
+                    doneLatch.await(30, TimeUnit.SECONDS),
+                    "threads did not finish in time on iteration " + iter
+                );
+
+                assertTrue(errors.isEmpty(), "concurrent toIntegerId calls must not throw: " + errors);
+
+                // all racers on the same key must have converged on one id
+                int expectedSharedId = sharedResults[0];
+                for (int id : sharedResults) {
+                    assertEquals(expectedSharedId, id, "all threads racing the same unknown key must get the same id (iter " + iter + ")");
+                }
+                assertEquals(sharedUnknown, map.fromIntegerId(expectedSharedId));
+
+                // distinct unknown keys must not collide with each other or with the shared key
+                Set<Integer> seenIds = new HashSet<>();
+                seenIds.add(expectedSharedId);
+                for (int t = 0; t < threadCount; t++) {
+                    int id = distinctResults[t];
+                    assertTrue(
+                        seenIds.add(id),
+                        "distinct unknown dimensions must not collide on id " + id + " (iter " + iter + ")"
+                    );
+                    assertEquals(perThreadUnknown.get(t), map.fromIntegerId(id));
+                }
+            }
+        }
+        finally {
+            executor.shutdownNow();
+        }
+
+        assertTrue(errors.isEmpty(), "concurrent toIntegerId calls must not throw: " + errors);
     }
 }
