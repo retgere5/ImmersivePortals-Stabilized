@@ -190,9 +190,17 @@ dependencies {
         // Mekanism
         implementation "maven.modrinth:mekanism:10.7.14.79"
     }
+
+    // Plain-JVM unit tests (src/test) -- no Minecraft/NeoForge runtime involved, just JUnit 5.
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('build').configure { dependsOn('jarJar') }
+
+test {
+    useJUnitPlatform()
+}
 
 // This block of code expands all declared replace properties in the specified resource targets.
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.
